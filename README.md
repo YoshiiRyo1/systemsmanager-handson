@@ -15,19 +15,24 @@
    1. インスタンスプロファイルの作成
    2. ハンズオン用 EC2 インスタンス（踏み台）の作成
    3. AWS CLI インストール、Session Manager プラグインのインストール
+   4. 解説
 2. Session Manager で EC2 へログイン
    1. セッションログの設定
    2. ローカル PC からログイン（AWS CLI）
    3. ローカル PC からログイン（Teraterm or Putty）  ※可能であればで
+   4. 解説
 3. Session Manager Port Forwarding を使った DB 接続
    1. 接続用 RDS クラスターの作成
    2. ローカル PC から DB 接続
+   3. 解説
 4. State Manager による EC2 管理
    1. State Manager 初期設定
    2. 定期的なジョブを実行する
+   3. 解説
 5. Automation を使った運用自動化
    1. AWS 管理ランブックを実行してみよう
    2. ランブックを書いてみよう
+   3. 解説
 
 
 ## ハンズオンの前提
