@@ -11,28 +11,27 @@
 
 ## 目次
 
-1. Systems Manager ハンズオンセットアップ
-   1. インスタンスプロファイルの作成
+1. [Systems Manager ハンズオンセットアップ](./chapter01.md)
+   1. Systems Manager にインスタンスのアクセス許可を設定する
    2. ハンズオン用 EC2 インスタンス（踏み台）の作成
-   3. AWS CLI インストール、Session Manager プラグインのインストール
-   4. 解説
-2. Session Manager で EC2 へログイン
+   3. 解説
+2. [Session Manager で EC2 へログイン](./chapter02.md)
    1. セッションログの設定
    2. ローカル PC からログイン（AWS CLI）
-   3. ローカル PC からログイン（Teraterm or Putty）  ※可能であればで
-   4. 解説
-3. Session Manager Port Forwarding を使った DB 接続
+   3. 解説
+3. [Session Manager Port Forwarding を使った DB 接続](./chapter03.md)
    1. 接続用 RDS クラスターの作成
    2. ローカル PC から DB 接続
    3. 解説
-4. State Manager による EC2 管理
+4. [State Manager による EC2 管理](./chapter04.md)
    1. State Manager 初期設定
    2. 定期的なジョブを実行する
    3. 解説
-5. Automation を使った運用自動化
+5. [Automation を使った運用自動化](./chapter05.md)
    1. AWS 管理ランブックを実行してみよう
    2. ランブックを書いてみよう
    3. 解説
+6. [クリーンアップ](./chapter06.md)
 
 
 ## ハンズオンの前提
@@ -40,7 +39,7 @@
 - 自身が所有している AWS アカウントがあること
   - 本番環境ではないことが望ましい
 - AdministratorAccess 権限の持つ IAM ユーザー/ロールが使えること
-- インターネットアクセスが可能な VPC があること
+- デフォルト VPC があること
 
 ## AWS 公式
 
