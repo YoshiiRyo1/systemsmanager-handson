@@ -33,8 +33,15 @@ AWS-SystemsManager-AutomationServiceRole.yaml  AWS-SystemsManager-AutomationServ
 aws cloudformation create-stack --stack-name SSMHandson \
   --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml \
   --capabilities CAPABILITY_NAMED_IAM
+```
 
+マネジメントコンソールで IAM ロール画面を開いてください。**AutomationServiceRole** というロールが作成されていることを確認します。  
 
+![img](./img/chap05_automationservicerole.png)
+
+作成後に以下のコマンドを実行します。  
+
+```bash
 cat > inline-policy.json << EOF
 {
     "Version": "2012-10-17",
@@ -54,9 +61,6 @@ aws iam put-role-policy \
     --policy-document file://inline-policy.json
 ```
 
-マネジメントコンソールで IAM ロール画面を開いてください。**AutomationServiceRole** というロールが作成されていることを確認します。  
-
-![img](./img/automationservicerole.png)
 
 
 ### Automation を実行する
@@ -103,12 +107,12 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下の4つのパラメータを追加します。  
 
-| Parameter Name       | Type   | Required | Default value | Allowed Pattern                                                    | Description                                                                       |
-| -------------------- | ------ | -------- | ------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| InstanceId           | String | Yes      |               |                                                                    | The Id of the instance                                                            |
-| InstanceType         | String | Yes      |               |                                                                    | The desired instance type                                                         |
-| AutomationAssumeRole | String | No       |               |                                                                    | The ARN of the role that allows Automation to perform the actions on your behalf. |
-| SleepWait            | String | No       | PT5S          | ^PT([0-9]{1,6}S&#124;[0-9]{1,5}M&#124;[0-9]{1,3}H)$&#124;^PD[0-7]$ | The desired wait time before starting instance                                    |
+| Parameter Name       | Type   | Required | Default value | Allowed Pattern                                                        | Description                                                                       |
+| -------------------- | ------ | -------- | ------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| InstanceId           | String | Yes      |               |                                                                        | The Id of the instance                                                            |
+| InstanceType         | String | Yes      |               |                                                                        | The desired instance type                                                         |
+| AutomationAssumeRole | String | No       |               |                                                                        | The ARN of the role that allows Automation to perform the actions on your behalf. |
+| SleepWait            | String | No       | PT5S          | ^PT([0-9]{1,6}S&#124;[0-9]{1,5}M&#124;[0-9]{1,3}H)&#36;&#124;^PD[0-7]$ | The desired wait time before starting instance                                    |
 
 
 ![img](./img/chap05_automation_parameters.png)
@@ -126,7 +130,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 左側ペインから **Assert a property** をマウスでキャンバスにドロップします。  
 
-ドロップした **AssertAAWSResourceProperty** をクリックします。  
+ドロップした **AssertAWSResourceProperty** をクリックします。  
 
 右側ペインの **AssertAWSResourceProperty** から **General** タブを開きます。  
 
@@ -147,7 +151,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 ### ステップ2
 
 左側ペインから **Change an Instance state** をマウスでキャンバスにドロップします。  
-前の手順の **AssertAAWSResourceProperty** と繋げます。  
+前の手順の **AssertAWSResourceProperty** と繋げます。  
 
 ドロップした **ChangeInstanceState** をクリックします。  
 
@@ -237,13 +241,101 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 | クリティカル       | false        |
 | 次のステップ       | 最後へ移動   |
 
+### 完成形
+
+デザイン画面の上部にある **コード** をクリックします。  
+
+![img](./img/chap05_automation_code.png)  
+
+<br />
+コード (yaml) が以下の通りであることを確認します。  
+
+```yaml
+schemaVersion: '0.3'
+description: |-
+  *Replace this default text with instructions or other information about your runbook.*
+
+  ---
+  # What is Markdown?
+  Markdown is a lightweight markup language that converts your content with plain text formatting to structurally valid rich text.
+  ## You can add headings
+  You can add *italics* or make the font **bold**.
+  1. Create numbered lists
+  * Add bullet points
+  >Indent `code samples`
+
+  You can create a [link to another webpage](${ AWS_ENDPOINT }).
+parameters:
+  InstanceType:
+    type: String
+    description: The desired instance type
+  InstanceId:
+    type: String
+    description: The Id of the instance
+  AutomationAssumeRole:
+    type: String
+    default: ''
+    description: The ARN of the role that allows Automation to perform the actions on your behalf.
+  SleepWait:
+    type: String
+    default: PT5S
+    description: The desired wait time before starting instance
+    allowedPattern: ^PT([0-9]{1,6}S|[0-9]{1,5}M|[0-9]{1,3}H)$|^PD[0-7]$
+assumeRole: '{{AutomationAssumeRole}}'
+mainSteps:
+  - name: assertInstanceType
+    action: aws:assertAwsResourceProperty
+    isCritical: false
+    isEnd: true
+    onFailure: step:stopInstance
+    inputs:
+      Service: ec2
+      Api: DescribeInstances
+      InstanceIds:
+        - '{{InstanceId}}'
+      PropertySelector: $.Reservations[0].Instances[0].InstanceType
+      DesiredValues:
+        - '{{InstanceType}}'
+  - name: stopInstance
+    action: aws:changeInstanceState
+    nextStep: resizeInstance
+    isEnd: false
+    inputs:
+      InstanceIds:
+        - '{{InstanceId}}'
+      DesiredState: stopped
+  - name: resizeInstance
+    action: aws:executeAwsApi
+    nextStep: wait
+    isEnd: false
+    inputs:
+      Service: ec2
+      Api: ModifyInstanceAttribute
+      InstanceId: '{{InstanceId}}'
+      InstanceType:
+        Value: '{{InstanceType}}'
+  - name: wait
+    action: aws:sleep
+    nextStep: startInstance
+    isEnd: false
+    inputs:
+      Duration: '{{SleepWait}}'
+  - name: startInstance
+    action: aws:changeInstanceState
+    isEnd: true
+    inputs:
+      InstanceIds:
+        - '{{InstanceId}}'
+      DesiredState: running
+```
+
 ### 保存と実行
 
 右上にある **Create runbook** をクリックします。
 Automation ドキュメントが保存されました。  
 
 作成したドキュメントを開きます。  
-右上にある **Execute automation** をクリックします。  
+右上にある **オートメーションを実行する** をクリックします。  
 
 **Input parameters** に以下を入力します。  
 
@@ -258,135 +350,14 @@ Automation ドキュメントが保存されました。
 
 **Excute** をクリックします。  
 
+しばらく待ちます。  
 
+ステップ1の assertInstanceType は失敗します。それ以外のステップが成功したことを確認します。  
 
+![img](./img/chap05_automation_result.png))
 
-## ランブックを書いてみよう(旧)
+マネジメントコンソールで EC2 画面を開いてください。該当 EC2 インスタンスのインスタンスタイプが変わっていることを確認します。  
 
-AWS が用意しているランブックだけでは自社の運用が回らない可能性はあります。  
-自社に合わせたランブックを書いて実行することで効率良い運用を実現します。  
-
-ランブックを書いてみましょう。  
-[AWS-ResizeInstance](https://docs.aws.amazon.com/ja_jp/systems-manager-automation-runbooks/latest/userguide/automation-aws-resizeinstance.html) というランブックを参考にしながら記述方法を学びます。  
-
-```YAML
----
-description: Resize an EC2 instance
-schemaVersion: "0.3"
-assumeRole: "{{ AutomationAssumeRole }}"
-parameters:
-  InstanceId:
-    type: String
-    description: (Required) The Id of the instance
-  InstanceType: 
-    type: String
-    description: (Required) The desired instance type
-  SleepWait:
-    type: String
-    default: "PT5S"
-    description: (Optional) The desired wait time before starting instance
-    allowedPattern: "^PT([0-9]{1,6}S|[0-9]{1,5}M|[0-9]{1,3}H)$|^PD[0-7]$"
-  AutomationAssumeRole:
-    type: String
-    description: (Optional) The ARN of the role that allows Automation to perform the actions on your behalf.
-    default: ""
-mainSteps:
-  - name: assertInstanceType
-    action: aws:assertAwsResourceProperty
-    inputs: 
-      Service: EC2 
-      Api: DescribeInstances
-      InstanceIds:
-        - "{{InstanceId}}"
-      PropertySelector: "$.Reservations[0].Instances[0].InstanceType"
-      DesiredValues: ["{{InstanceType}}"]
-    onFailure: step:stopInstance
-    isCritical: false
-    isEnd: true 
-  - name: stopInstance
-    action: aws:changeInstanceState
-    inputs: 
-      InstanceIds: 
-        - "{{InstanceId}}"
-      DesiredState: stopped 
-  - name: resizeInstance 
-    action: aws:executeAwsApi
-    inputs:
-      Service: EC2 
-      Api: ModifyInstanceAttribute
-      InstanceId: "{{InstanceId}}"
-      InstanceType: 
-        Value: "{{InstanceType}}"
-  - name: wait
-    action: aws:sleep
-    inputs:
-      Duration: "{{SleepWait}}"
-  - name: startInstance
-    action: aws:changeInstanceState 
-    inputs:
-      InstanceIds:
-        - "{{InstanceId}}"
-      DesiredState: running 
-```
-
-### データ要素とパラメータ
-
-```YAML
-description: Resize an EC2 instance
-schemaVersion: "0.3"
-assumeRole: "{{ AutomationAssumeRole }}"
-parameters:
-  SleepWait:
-    type: String
-    default: "PT5S"
-    description: (Optional) The desired wait time before starting instance
-    allowedPattern: "^PT([0-9]{1,6}S|[0-9]{1,5}M|[0-9]{1,3}H)$|^PD[0-7]$"
-```
-
-**description** にはランブックの説明を記述します。何を実行しているのか他人に理解しやすい説明を書きましょう。  
-
-**schemaVersion** は 0.3 固定です。余談ですが、RunCommand は 2.2 となっています。  
-
-**assumeRole** には Automation が引き受けるロールを指定します。ランブックに対応した最小権限を持ったロールをランブックごとに作成するようにしましょう。    
-
-**parameters** にはランブックに渡すパラメータを定義します。インスタンス ID や希望する値など可変要素はパラメータで定義し、実行時に指定するようにします。  
-変数型は String、StringList、Integer、Boolean、MapList、StringMap を使用できます。  
-default を使って初期値を定義したり、allowPattern を使って入力値の制限をかけることも可能です。  
-
-### 処理
-
-```YAML
-mainSteps:
-  - name: assertInstanceType
-    action: aws:assertAwsResourceProperty
-    inputs: 
-      Service: EC2 
-      Api: DescribeInstances
-      InstanceIds:
-        - "{{InstanceId}}"
-      PropertySelector: "$.Reservations[0].Instances[0].InstanceType"
-      DesiredValues: ["{{InstanceType}}"]
-    onFailure: step:stopInstance
-    isCritical: false
-    isEnd: true 
-```
-
-**mainSteps** ブロックにランブックの処理を記述します。  
-基本的に書かれている順番、上から順に実行されます。  
-
-**name** はステップ名を記述します。そのステップが何を実行しているか判別しやすい名称にしましょう。ランブック内で一意である必要があります。  
-
-**action** ではサポートされているアクションタイプを指定します。
-全てのアクションタイプは [Systems Manager Automation アクションのリファレンス](https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/automation-actions.html) を参照ください。  
-
-**input** ではアクションタイプ固有のプロパティを指定します。ここでランブックで指定したパラメータを渡すことが多いです。
-
-**onFailure** はステップが失敗した際の挙動を定義します。Abort(中止)、Continue(続行)、step(別のステップに移行) から選択します。  
-上に示している AWS-ResizeInstance の例だと、ステップ:assertInstanceType で現在のインスタンスサイズとパラメータのインスタンスサイズを比較し、一致なら成功でランブック終了、失敗なら後続ステップへ移行を onFailure で表現しています。  
-
-**isCritical** はクリティカルなステップに指定します。そのステップが失敗した場合、ランブックも失敗になります。  
-
-**isEnd** はランブックの終了を意味します。  
 
 ### 役に立つユーザーガイド
 
