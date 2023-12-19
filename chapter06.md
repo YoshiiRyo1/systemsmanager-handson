@@ -10,3 +10,36 @@
 - インスタンスプロファイル
   - デフォルト名称 SSMHandsonProfile
 
+```bash
+# ハンズオン用 EC2 インスタンス削除
+InstanceId=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=SSMHandson" | jq -r .Reservations[].Instances[].InstanceId)
+aws ec2 terminate-instances --instance-ids $InstanceId
+
+if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check your operations and run once again.";fi
+```
+
+
+```bash
+# インスタンスプロファイルの削除
+aws iam remove-role-from-instance-profile --instance-profile-name $ROLE_NAME --role-name $ROLE_NAME
+aws iam delete-instance-profile --instance-profile-name $ROLE_NAME
+aws iam detach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam delete-role --role-name $ROLE_NAME
+
+if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check your operations and run once again.";fi
+```
+
+
+```bash
+# State Manager 関連付けの削除
+AssociationId=$(aws ssm list-associations --association-filter-list key=AssociationName,value=Linux_Patch_Apply | jq -r .Associations[].AssociationId)
+aws ssm delete-association --association-id $AssociationId
+
+if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check your operations and run once again.";fi
+```
+
+
+```bash
+# Automation サービスロールの削除
+aws cloudformation delete-stack --stack-name SSMHandson
+```
