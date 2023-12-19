@@ -33,6 +33,25 @@ AWS-SystemsManager-AutomationServiceRole.yaml  AWS-SystemsManager-AutomationServ
 aws cloudformation create-stack --stack-name SSMHandson \
   --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml \
   --capabilities CAPABILITY_NAMED_IAM
+
+
+cat > inline-policy.json << EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Resource": "*",
+            "Action": "ec2:ModifyInstanceAttribute"
+        }
+    ]
+}
+EOF
+
+aws iam put-role-policy \
+    --role-name AutomationServiceRole \
+    --policy-name HandsonPolicy \
+    --policy-document file://inline-policy.json
 ```
 
 マネジメントコンソールで IAM ロール画面を開いてください。**AutomationServiceRole** というロールが作成されていることを確認します。  
@@ -67,6 +86,182 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 このように予め定義しておいたランブックを実行してオペレーションを自動化することが Automation の目的です。  
 
 ## ランブックを書いてみよう
+
+2023年11月26日のアップデートで Automation の Visual Design ツールが発表されました。  
+以前は YAML ファイルを書かなければならなかったのですが、D&D で Automation を書けるようになり大変便利になりました。ハンズオンでも Visual Design を使って Automation を書いてみましょう。  
+
+本ハンズオンでは、EC2 インスタンスのインスタンスタイプ変更を Automation で記述します。  
+希望のインスタンスタイプを指定、インスタンス停止した後にインスタンスタイプを変更、インスタンスを起動するという流れです。  
+
+マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
+
+**Create automation runbook** をクリックします。  
+
+### 変数の定義
+
+右側ペインの **Runbook attributes** から **Parameters** タブを開きます。  
+
+以下の4つのパラメータを追加します。  
+
+| Parameter Name       | Type   | Required | Default value | Allowed Pattern                                                    | Description                                                                       |
+| -------------------- | ------ | -------- | ------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| InstanceId           | String | Yes      |               |                                                                    | The Id of the instance                                                            |
+| InstanceType         | String | Yes      |               |                                                                    | The desired instance type                                                         |
+| AutomationAssumeRole | String | No       |               |                                                                    | The ARN of the role that allows Automation to perform the actions on your behalf. |
+| SleepWait            | String | No       | PT5S          | ^PT([0-9]{1,6}S&#124;[0-9]{1,5}M&#124;[0-9]{1,3}H)$&#124;^PD[0-7]$ | The desired wait time before starting instance                                    |
+
+
+![img](./img/chap05_automation_parameters.png)
+
+### 属性の定義
+
+右側ペインの **Runbook attributes** から **Attributes** タブを開きます。  
+
+**Assume role** 欄に `{{AutomationAssumeRole}}` と入力します。  
+
+![img](./img/chap05_automation_attributes.png)
+
+
+### ステップ1
+
+左側ペインから **Assert a property** をマウスでキャンバスにドロップします。  
+
+ドロップした **AssertAAWSResourceProperty** をクリックします。  
+
+右側ペインの **AssertAWSResourceProperty** から **General** タブを開きます。  
+
+**Step name** に `assertInstanceType` と入力します。  
+
+**Inputs** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value                                       |
+| ------------------ | ------------------------------------------- |
+| Service            | EC2                                         |
+| API                | DescribeInstances                           |
+| Property selector  | $.Reservations[0].Instances[0].InstanceType |
+| Desired values     | - '{{InstanceType}}'                        |
+| InstanceIds        | - '{{InstanceType}}'                        |
+
+### ステップ2
+
+左側ペインから **Change an Instance state** をマウスでキャンバスにドロップします。  
+前の手順の **AssertAAWSResourceProperty** と繋げます。  
+
+ドロップした **ChangeInstanceState** をクリックします。  
+
+右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+
+**Step name** に `stopInstance` と入力します。  
+
+**Inputs** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value                |
+| ------------------ | -------------------- |
+| InstanceIds        | - '{{InstanceType}}' |
+| DesiredState       | stopped              |
+
+### ステップ3
+
+左側ペインの **AWS APIs** タブから `Amazon EC2 ModifyInstanceAttribute` をマウスでキャンバスにドロップします。  
+前の手順の **stopInstance** と繋げます。  
+
+ドロップした **ModifyInstanceAttribute** をクリックします。  
+
+右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+
+**Step name** に `resizeInstance` と入力します。  
+
+**Inputs** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value                     |
+| ------------------ | ------------------------- |
+| InstanceIds        | {{InstanceType}}          |
+| InstanceType       | Value: '{{InstanceType}}' |
+
+### ステップ4
+
+左側ペインから **Sleep** をマウスでキャンバスにドロップします。  
+前の手順の **resizeInstance** と繋げます。  
+
+ドロップした **Sleep** をクリックします。  
+
+右側ペインの **Sleep** から **General** タブを開きます。  
+
+**Step name** に `wait` と入力します。  
+
+**Inputs** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value         |
+| ------------------ | ------------- |
+| Duration           | {{SleepWait}} |
+
+### ステップ5
+
+左側ペインから **Change an Instance state** をマウスでキャンバスにドロップします。  
+前の手順の **wait** と繋げます。  
+
+ドロップした **ChangeInstanceState** をクリックします。  
+
+右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+
+**Step name** に `startInstance` と入力します。  
+
+**Inputs** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value                |
+| ------------------ | -------------------- |
+| InstanceIds        | - '{{InstanceType}}' |
+| DesiredState       | running              |
+
+### ステップ6
+
+ステップ1の **assertInstanceType** をクリックします。  
+
+**Configuration** タブを開きます。  
+
+以下のように入力します。  
+
+| Configuration Name | Value        |
+| ------------------ | ------------ |
+| 失敗した場合       | stopInstance |
+| クリティカル       | false        |
+| 次のステップ       | 最後へ移動   |
+
+### 保存と実行
+
+右上にある **Create runbook** をクリックします。
+Automation ドキュメントが保存されました。  
+
+作成したドキュメントを開きます。  
+右上にある **Execute automation** をクリックします。  
+
+**Input parameters** に以下を入力します。  
+
+| Parameter Name       | Value                            |
+| -------------------- | -------------------------------- |
+| InstanceId           | ハンズオン用踏み台サーバーを選択 |
+| InstanceType         | t2.micro                         |
+| AutomationAssumeRole | AutomationServiceRole を選択     |
+| SleepWait            | PT5S                             |
+
+![img](./img/chap05_run_automation.png)
+
+**Excute** をクリックします。  
+
+
+
+
+## ランブックを書いてみよう(旧)
 
 AWS が用意しているランブックだけでは自社の運用が回らない可能性はあります。  
 自社に合わせたランブックを書いて実行することで効率良い運用を実現します。  
