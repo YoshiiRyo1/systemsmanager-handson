@@ -34,6 +34,10 @@ AssociationId=$(aws ssm list-associations --association-filter-list key=Associat
 aws ssm delete-association --association-id $AssociationId
 ```
 
+```bash
+# CloudWatch Logs ロググループの削除
+aws logs delete-log-group --log-group-name SSMHandson
+```
 
 ```bash
 # Automation サービスロールの削除
