@@ -101,6 +101,12 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 **Create automation runbook** をクリックします。  
 
+### ランブック名の定義
+
+ランブックに名前をつけます。一意で識別しやすい名称が理想です。  
+名称設定欄は左上にあります。「NewRunbook」が初期値で入っています。今回は **SSMHandson** します。   
+
+
 ### 変数の定義
 
 右側ペインの **Runbook attributes** から **Parameters** タブを開きます。  

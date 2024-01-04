@@ -25,8 +25,6 @@ aws iam remove-role-from-instance-profile --instance-profile-name $ROLE_NAME --r
 aws iam delete-instance-profile --instance-profile-name $ROLE_NAME
 aws iam detach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 aws iam delete-role --role-name $ROLE_NAME
-
-if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check your operations and run once again.";fi
 ```
 
 
@@ -34,12 +32,15 @@ if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check you
 # State Manager 関連付けの削除
 AssociationId=$(aws ssm list-associations --association-filter-list key=AssociationName,value=Linux_Patch_Apply | jq -r .Associations[].AssociationId)
 aws ssm delete-association --association-id $AssociationId
-
-if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check your operations and run once again.";fi
 ```
 
 
 ```bash
 # Automation サービスロールの削除
 aws cloudformation delete-stack --stack-name SSMHandson
+```
+
+```bash
+# Automation ランブックの削除
+aws ssm delete-document --name SSMHandson
 ```
