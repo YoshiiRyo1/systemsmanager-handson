@@ -148,14 +148,13 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下のように入力します。  
 
-
-| Configuration Name | Value                                   |
-| ------------------ |-----------------------------------------|
-| Service            | EC2                                     |
-| API                | DescribeInstances                       |
+| Configuration Name | Value                                       |
+| ------------------ |---------------------------------------------|
+| Service            | EC2                                         |
+| API                | DescribeInstances                           |
 | Property selector  | $.Reservations[0].Instances[0].InstanceType |
-| Desired values     | - '{{InstanceType}}'                    |
-| InstanceIds        | - '{{InstanceId}}'                      |
+| Desired values     | - '{{InstanceType}}'                        |
+| InstanceIds        | - '{{InstanceId}}'                          |
 
 `InstanceIds` は `Additional inputs` から追加してください。
 
@@ -196,7 +195,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下のように入力します。  
 
-| Configuration Name | Value                     |
+| Configuration Name | Value                    |
 | ----------------- |---------------------------|
 | InstanceId        | {{InstanceId}}            |
 | InstanceType      | Value: '{{InstanceType}}' |
