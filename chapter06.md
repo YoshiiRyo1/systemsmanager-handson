@@ -24,6 +24,7 @@ if [ $? == 0 ] ;then echo "Delete Complete.";else echo "Delete failed. check you
 aws iam remove-role-from-instance-profile --instance-profile-name $ROLE_NAME --role-name $ROLE_NAME
 aws iam delete-instance-profile --instance-profile-name $ROLE_NAME
 aws iam detach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam delete-role-policy --role-name $ROLE_NAME --policy-name Handson_chap2_Policy
 aws iam delete-role --role-name $ROLE_NAME
 ```
 
