@@ -72,6 +72,7 @@ aws iam add-role-to-instance-profile --role-name $ROLE_NAME --instance-profile-n
 
 - Internet Gateway がアタッチされているサブネット
 - パブリック IP アドレスを付与
+- 本ハンズオンを通じたコマンドオプション（デフォルト VPC 前提で資料を作成しています。デフォルト VPC 以外を使う場合はコマンドオプションが追加・変更になることがあります。）
 
 
 以下のコマンドで EC2 インスタンスを作成します。  
