@@ -68,7 +68,7 @@ aws iam add-role-to-instance-profile --role-name $ROLE_NAME --instance-profile-n
 ## ハンズオン用 EC2 インスタンス（踏み台）の作成
 
 ハンズオン用踏み台サーバーを作成します。ハンズオンではデフォルト VPC を使います。  
-デフォルト VPC ではなく任意の VPC を使う場合は以下2点を忘れずにお願いします。    
+デフォルト VPC ではなく任意の VPC を使う場合は以下3点を忘れずにお願いします。    
 
 - Internet Gateway がアタッチされているサブネット
 - パブリック IP アドレスを付与
