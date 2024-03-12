@@ -16,7 +16,7 @@ STRING_EC2_ROUTE_TABLE_TAG="ResourceType=route-table,Tags=[{Key=Name,Value=${EC2
 
 使用しているVPCのIDを変数として定義します
 ```
-VPC_ID=`<今回使っているVPCのID>`
+VPC_ID='<今回使っているVPCのID>'
 ```
 
 設定した変数を使用してサブネットの作成とルートテーブルの関連付けを行います
@@ -63,7 +63,7 @@ Port Forwardingを使う前に、一度構成を確認してみましょう
 
 Chapter01で作成した踏み台サーバーが、以下の図の「SSM Managed Instance」に該当します
 
-![alt text](../systemsmanager-handson/SSM_SM_PortForwarding_Architecture.jpg)
+![alt text](./img/chapter03_portForwarding_architecture.jpg)
 
 （引用：https://aws.amazon.com/jp/blogs/news/use-port-forwarding-in-aws-systems-manager-session-manager-to-connect-to-remote-hosts-jp/ ）
 
@@ -90,7 +90,7 @@ Waiting for connections...
 
 
 
-![alt text](./image.jpg)
+![alt text](./img/chapter03_open_newtab.jpg)
 
 新しいターミナルが開いたら、以下のコマンドでRDSに接続します
 （パスワードを聞かれるので、RDS作成時に設定したパスワードを入力してください）
