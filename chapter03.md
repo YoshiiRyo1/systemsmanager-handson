@@ -16,7 +16,7 @@ STRING_EC2_ROUTE_TABLE_TAG="ResourceType=route-table,Tags=[{Key=Name,Value=${EC2
 
 使用しているVPCのIDを変数として定義します。以下のコマンドはデフォルトVPCのIDを取得するコマンドです。  
 ```
-VPC_ID=(aws ec2 describe-vpcs --filters Name=is-default,Values=true | jq -r .Vpcs[].VpcId)
+VPC_ID=$(aws ec2 describe-vpcs --filters Name=is-default,Values=true | jq -r .Vpcs[].VpcId)
 ```
 
 設定した変数を使用してサブネットの作成とルートテーブルの関連付けを行います
