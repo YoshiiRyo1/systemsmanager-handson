@@ -26,7 +26,7 @@ Chapter01で作成した踏み台サーバーが、以下の図の「SSM Managed
 まずは、CloudShellと踏み台サーバーの間でセッションを貼ります。
 
 ```
-aws ssm start-session --target <踏み台サーバーのインスタンスID> --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["3306"],"localPortNumber":["1053"],"host":["<RDSのエンドポイント>"]}'
+aws ssm start-session --target <踏み台サーバーのインスタンスID> --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["3306"],"localPortNumber":["13306"],"host":["<RDSのエンドポイント>"]}'
 ```
 
 以下のような表示がされて入力待ちの状態になったら、CloudShellと踏み台サーバーの間でセッションが張られてます。
@@ -45,7 +45,7 @@ Waiting for connections...
 新しいターミナルが開いたら、以下のコマンドでRDSに接続します。
 
 ```
-mysql -h 127.0.0.1 --port 1053 -u mymasteruser -pmymasteruser
+mysql -h 127.0.0.1 --port 13306 -u mymasteruser -pmymasteruser
 ```
 
 以下のような画面が出てきたら、RDSへの接続が成功しています

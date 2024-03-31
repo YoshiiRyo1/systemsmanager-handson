@@ -77,33 +77,35 @@ exit
 Session Manager 経由でログインした際のコマンド実行履歴を記録します。  
 S3 と CloudWatch Logs の何れか、または、両方に記録することができます。このハンズオンでは CloudWatch Logs に記録します。  
 
+### 初期設定
+
+[Session Manager の設定](https://ap-northeast-1.console.aws.amazon.com/systems-manager/session-manager/preferences?region=ap-northeast-1) 画面を開きます。  
+**CloudWatch logging** で設定の有効化、ロググループの指定を行います。（本ハンズオンでは予め設定してあります）
+![alt text](./img/chap02_ssm_setting.png)
+
+
+### セッション開始
+
 Session Manager でインスタンスにログインしている場合は一度ログアウトします。  
-[マネジメントコンソールからログイン](#マネジメントコンソールからログイン) の手順を再度実行します。  
+[AWS CLI からログイン](#AWS-CLI-からログイン) の手順を再度実行します。  
+
+```bash
+[cloudshell-user@ip-10-134-9-152 ~]$ aws ssm start-session --target i-068b4d111b90d0535
+
+Starting session with SessionId: ryo.yoshii@mixi.co.jp-0740855347c5f5518  # ここの SessionId がログストリーム名になります
+
+sh-5.2$ date
+```
+
+### ログ表示
 
 [CloudWatch Logs](https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=ap-northeast-1#logsV2:log-groups/log-group/SSMHandson) 画面を開きます。  
 CloudWatch Logs のロググループ `SSMHandson` にログストリームが作成されています。それを開きます。  
 
 実行したコマンドとその結果が表示されています。  
 
-```json
-{
-    "eventVersion": "1.0",
-    "eventTime": "2024-00-00T00:00:00Z",
-    "awsRegion": "ap-northeast-1",
-    "target": {
-        "id": "i-012345678912"
-    },
-    "userIdentity": {
-        "arn": "arn:aws:sts::nnnnnnnn:xxxxxxxxx/xxxx"
-    },
-    "runAsUser": "ssm-user",
-    "sessionId": "xxxx",
-    "sessionData": [
-        "ssh-4.2$ date",
-        "Thu Jan  4 05:45:59 UTC 2024"
-    ]
-}
-```
+![alt text](./img/chap02_cw_logstreams.png)
+
 
 ## 解説
 
