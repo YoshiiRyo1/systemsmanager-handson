@@ -13,55 +13,13 @@ Automation は、リソースの管理・設定を自動化する機能です。
 Automation の実行はユーザーが行うわけではありません。  
 サービスロールが肩代わりしてリソースの操作を行います。そのサービスロールを作成します。  
 
-CloudShell で以下のコマンド実行します。  
-
-```bash
-wget https://docs.aws.amazon.com/systems-manager/latest/userguide/samples/AWS-SystemsManager-AutomationServiceRole.zip
-unzip AWS-SystemsManager-AutomationServiceRole.zip 
-```
-
-zip が解凍されて `AWS-SystemsManager-AutomationServiceRole.yaml` がディレクトリに存在することを確認します。  
-
-```bash
-$ ls
-AWS-SystemsManager-AutomationServiceRole.yaml  AWS-SystemsManager-AutomationServiceRole.zip
-```
-
-サービスロールを作成するコマンドを実行します。  
-
-```bash
-aws cloudformation create-stack --stack-name SSMHandson \
-  --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml \
-  --capabilities CAPABILITY_NAMED_IAM
-```
+本ハンズオンでは事前にサービルロールを作成しています。  
+サービルロール作成手順を知りたい方は以下を参照ください。  
+[Method 1: Use AWS CloudFormation to configure a service role for Automation](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-setup-cloudformation.html)
 
 マネジメントコンソールで IAM ロール画面を開いてください。**AutomationServiceRole** というロールが作成されていることを確認します。  
 
 ![img](./img/chap05_automationservicerole.png)
-
-作成後に以下のコマンドを実行します。  
-
-```bash
-cat > inline-policy.json << EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Resource": "*",
-            "Action": "ec2:ModifyInstanceAttribute"
-        }
-    ]
-}
-EOF
-
-aws iam put-role-policy \
-    --role-name AutomationServiceRole \
-    --policy-name HandsonPolicy \
-    --policy-document file://inline-policy.json
-```
-
-
 
 ### Automation を実行する
 
@@ -69,6 +27,8 @@ aws iam put-role-policy \
 
 マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation/execute) を開きます。  
 Systems Manager 画面の左ペインにある **変更管理** → **オートメーション** からも遷移できます。  
+
+**Execute automation** をクリックします。  
 
 検索ボックスに **AWS-StopEC2Instance** を入力します。  
 検索結果に表示された **AWS-StopEC2Instance** をクリックします。  
@@ -106,28 +66,27 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 ### ランブック名の定義
 
 ランブックに名前をつけます。一意で識別しやすい名称が理想です。  
-名称設定欄は左上にあります。「NewRunbook」が初期値で入っています。今回は **SSMHandson** します。   
-
+名称設定欄は左上にあります。「NewRunbook」が初期値で入っています。  
 
 ### 変数の定義
 
-右側ペインの **Runbook attributes** から **Parameters** タブを開きます。  
+右側ペインの **ランブック属性** から **パラメータ** タブを開きます。  
 
 以下の4つのパラメータを追加します。  
 
-| Parameter Name       | Type   | Required | Default value | Allowed Pattern                                                        | Description                                                                       |
-| -------------------- | ------ | -------- | ------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| InstanceId           | String | Yes      |               |                                                                        | The Id of the instance                                                            |
-| InstanceType         | String | Yes      |               |                                                                        | The desired instance type                                                         |
-| AutomationAssumeRole | String | No       |               |                                                                        | The ARN of the role that allows Automation to perform the actions on your behalf. |
-| SleepWait            | String | No       | PT5S          | ^PT([0-9]{1,6}S&#124;[0-9]{1,5}M&#124;[0-9]{1,3}H)&#36;&#124;^PD[0-7]$ | The desired wait time before starting instance                                    |
+| Parameter Name       | Type   | Required | Default value | Allowed Pattern | Description                                                                       |
+| -------------------- | ------ | -------- | ------------- | --------------- | --------------------------------------------------------------------------------- |
+| InstanceId           | String | Yes      |               |                 | The Id of the instance                                                            |
+| InstanceType         | String | Yes      |               |                 | The desired instance type                                                         |
+| AutomationAssumeRole | String | No       |               |                 | The ARN of the role that allows Automation to perform the actions on your behalf. |
+| SleepWait            | String | No       | PT5S          |                 | The desired wait time before starting instance                                    |
 
 
 ![img](./img/chap05_automation_parameters.png)
 
 ### 属性の定義
 
-右側ペインの **Runbook attributes** から **Attributes** タブを開きます。  
+右側ペインの **ランブック属性** から **属性** タブを開きます。  
 
 **Assume role** 欄に `{{AutomationAssumeRole}}` と入力します。  
 
@@ -136,7 +95,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ### ステップ1
 
-左側ペインから **Assert a property** をマウスでキャンバスにドロップします。  
+左側ペインから **プロパティをアサートします** をマウスでキャンバスにドロップします。  
 
 ドロップした **AssertAWSResourceProperty** をクリックします。  
 
@@ -149,36 +108,38 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 以下のように入力します。  
 
 | Configuration Name | Value                                       |
-| ------------------ |---------------------------------------------|
+| ------------------ | ------------------------------------------- |
 | Service            | EC2                                         |
 | API                | DescribeInstances                           |
 | Property selector  | $.Reservations[0].Instances[0].InstanceType |
 | Desired values     | - '{{InstanceType}}'                        |
 | InstanceIds        | - '{{InstanceId}}'                          |
 
-`InstanceIds` は `Additional inputs` から追加してください。
+`InstanceIds` は `その他の入力` から追加してください。
 
 `Desired values`、`InstanceIds` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
 
 ### ステップ2
 
-左側ペインから **Change an Instance state** をマウスでキャンバスにドロップします。  
+左側ペインから **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
 前の手順の **AssertAWSResourceProperty** と繋げます。  
 
 ドロップした **ChangeInstanceState** をクリックします。  
 
-右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
 **Step name** に `stopInstance` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
 | Configuration Name | Value              |
-| ------------------ |--------------------|
+| ------------------ | ------------------ |
 | InstanceIds        | - '{{InstanceId}}' |
 | DesiredState       | stopped            |
+
+`InstanceIds`、`{{InstanceId}}` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
 
 ### ステップ3
 
@@ -187,27 +148,29 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ドロップした **ModifyInstanceAttribute** をクリックします。  
 
-右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
 **Step name** に `resizeInstance` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value                    |
-| ----------------- |---------------------------|
-| InstanceId        | {{InstanceId}}            |
-| InstanceType      | Value: '{{InstanceType}}' |
+| Configuration Name | Value                     |
+| ------------------ | ------------------------- |
+| InstanceId         | {{InstanceId}}            |
+| InstanceType       | Value: '{{InstanceType}}' |
+
+`InstanceType` は `その他の入力` から追加してください。
 
 ### ステップ4
 
-左側ペインから **Sleep** をマウスでキャンバスにドロップします。  
+左側ペインから **スリープ** をマウスでキャンバスにドロップします。  
 前の手順の **resizeInstance** と繋げます。  
 
 ドロップした **Sleep** をクリックします。  
 
-右側ペインの **Sleep** から **General** タブを開きます。  
+右側ペインの **Sleep** から **全般** タブを開きます。  
 
 **Step name** に `wait` と入力します。  
 
@@ -221,12 +184,12 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ### ステップ5
 
-左側ペインから **Change an Instance state** をマウスでキャンバスにドロップします。  
+左側ペインから **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
 前の手順の **wait** と繋げます。  
 
 ドロップした **ChangeInstanceState** をクリックします。  
 
-右側ペインの **ChangeInstanceState** から **General** タブを開きます。  
+右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
 **Step name** に `startInstance` と入力します。  
 
@@ -235,15 +198,17 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 以下のように入力します。  
 
 | Configuration Name | Value              |
-| ------------------ |--------------------|
+| ------------------ | ------------------ |
 | InstanceIds        | - '{{InstanceId}}' |
 | DesiredState       | running            |
 
+`InstanceIds`、`{{InstanceId}}` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
+
 ### ステップ6
 
-ステップ1の **assertInstanceType** をクリックします。  
+ステップ1の **AssertAWSResourceProperty** をクリックします。  
 
-**Configuration** タブを開きます。  
+**設定** タブを開きます。  
 
 以下のように入力します。  
 
@@ -264,38 +229,21 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ```yaml
 schemaVersion: '0.3'
-description: |-
-  *Replace this default text with instructions or other information about your runbook.*
-
-  ---
-  # What is Markdown?
-  Markdown is a lightweight markup language that converts your content with plain text formatting to structurally valid rich text.
-  ## You can add headings
-  You can add *italics* or make the font **bold**.
-  1. Create numbered lists
-  * Add bullet points
-  >Indent `code samples`
-
-  You can create a [link to another webpage](${ AWS_ENDPOINT }).
+description: '*このデフォルトのテキストをランブックに関する指示や他の情報に置き換えてください。* --- # Markdown とは何ですか? Markdown とは、プレーンテキスト形式のコンテンツを、構造的に有効なリッチテキストに変換する軽量のマークアップ言語です。## 見出しを追加できます *斜体*を追加したり、フォントを**太字**にしたりできます。1. 番号付きリストを作成する * 箇条書きを追加する > `コードサンプル`にインデントを設定する [別のウェブページへのリンク](https://aws.amazon.com) を作成できます。'
 parameters:
-  InstanceType:
-    type: String
-    description: The desired instance type
   InstanceId:
     type: String
-    description: The Id of the instance
+  InstanceType:
+    type: String
   AutomationAssumeRole:
     type: String
     default: ''
-    description: The ARN of the role that allows Automation to perform the actions on your behalf.
   SleepWait:
     type: String
     default: PT5S
-    description: The desired wait time before starting instance
-    allowedPattern: ^PT([0-9]{1,6}S|[0-9]{1,5}M|[0-9]{1,3}H)$|^PD[0-7]$
 assumeRole: '{{AutomationAssumeRole}}'
 mainSteps:
-  - name: assertInstanceType
+  - name: AssertAWSResourceProperty
     action: aws:assertAwsResourceProperty
     isCritical: false
     isEnd: true
@@ -303,11 +251,11 @@ mainSteps:
     inputs:
       Service: ec2
       Api: DescribeInstances
-      InstanceIds:
-        - '{{InstanceId}}'
       PropertySelector: $.Reservations[0].Instances[0].InstanceType
       DesiredValues:
         - '{{InstanceType}}'
+      InstanceIds:
+        - '{{InstanceId}}'
   - name: stopInstance
     action: aws:changeInstanceState
     nextStep: resizeInstance
