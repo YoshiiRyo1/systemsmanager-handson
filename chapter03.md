@@ -26,7 +26,7 @@ Chapter01で作成した踏み台サーバーが、以下の図の「SSM Managed
 まずは、CloudShellと踏み台サーバーの間でセッションを貼ります。
 
 ```
-aws ssm start-session --target <踏み台サーバーのインスタンスID> --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["3306"],"localPortNumber":["13306"],"host":["<RDSのエンドポイント>"]}'
+aws ssm start-session --target ${MYID} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["3306"],"localPortNumber":["13306"],"host":["ssmhandson.cluster-c3u2kuuqe9s3.ap-northeast-1.rds.amazonaws.com"]}'
 ```
 
 以下のような表示がされて入力待ちの状態になったら、CloudShellと踏み台サーバーの間でセッションが張られてます。

@@ -20,7 +20,7 @@ Session Manager には以下のような利点があります。
 
 [EC2](https://us-west-2.console.aws.amazon.com/ec2/home#Instances:) 画面を開きます。  
 
-[Chapter 1](./chapter01.md) で案内した EC2 インスタンスを使用します。そのインスタンスのチェックボックスを選択して、上部の `接続` ボタンをクリックします。  
+[Chapter 1](./chapter01.md) で作成した EC2 インスタンスを使用します。そのインスタンスのチェックボックスを選択して、上部の `接続` ボタンをクリックします。  
 ![img](./img/chap02_ec2.png)  
   
 `セッションマネージャー` タブから `接続` ボタンをクリックします。  
@@ -49,7 +49,9 @@ whoami
 CloudShell で以下のコマンドを実行します。  
 
 ```bash
-aws ssm start-session --target インスタンスID
+MYID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=${MYNAME}_SSMHandson --query 'Reservations[].Instances[].InstanceId' --output text)
+
+aws ssm start-session --target ${MYID}
 ```
 
 プロンプトが `sh-4.2$` に変わり、コマンドを実行できるようになります。  
@@ -90,7 +92,7 @@ Session Manager でインスタンスにログインしている場合は一度�
 [AWS CLI からログイン](#AWS-CLI-からログイン) の手順を再度実行します。  
 
 ```bash
-[cloudshell-user@ip-10-134-9-152 ~]$ aws ssm start-session --target i-068b4d111b90d0535
+aws ssm start-session --target ${MYID}
 
 Starting session with SessionId: ryo.yoshii@mixi.co.jp-0740855347c5f5518  # ここの SessionId がログストリーム名になります
 
