@@ -1,7 +1,7 @@
 # Systems Manager ハンズオンセットアップ
 
 それではハンズオンを開始します。  
-管理者権限を持った IAM で AWS マネジメントコンソールへログインします。  
+お伝えした IAM ユーザーで AWS マネジメントコンソールへログインします。  
 
 右上のメニュー部分にある CloudShell ボタンをクリックして CloudShell を開きます。  
 ![img](img/cloudshell.png)   
@@ -19,10 +19,51 @@ VSCode の場合は右下にある改行コードをクリックして LF に変
 
 ## ハンズオン用 EC2 インスタンス（踏み台）の作成
 
-本日のハンズオンは OpsJAWS 運営が用意した EC2 インスタンスを使用します。  
+以下のコマンドで EC2 インスタンスを作成します。  
+自分専用のインスタンスになりますので、必ず **MYNAME** 変数を設定するようにしてください。  
+
+```bash
+# 自分を識別しやすい文字列、例えば名前を入力します。
+MYNAME="yoshii"
+
+AWS_PAGER=""
+
+cat > tagspec.json << EOF
+[
+    {
+        "ResourceType": "instance",
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "${MYNAME}_SSMHandson"
+            }
+        ]
+    },
+    {
+        "ResourceType": "volume",
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "${MYNAME}_SSMHandson}"
+            }
+        ]
+    }
+]
+EOF
+
+aws ec2 run-instances \
+  --image-id resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2 \
+  --instance-type t3.micro \
+  --iam-instance-profile Name=ec2_instance_profile \
+  --metadata-options HttpTokens=required \
+  --subnet-id subnet-0d9b6fd29bb54b16f \
+  --security-group-ids sg-02d92d819799aee74 \
+  --associate-public-ip-address \
+  --tag-specifications file://tagspec.json
+```
 
 マネジメントコンソールで EC2 画面を開いてください。  
-**SSMHandson** という名前のインスタンスが起動しているはずです。  
+**${MYNAME}_SSMHandson** という名前のインスタンスが起動しているはずです。  
 
 ![ec2](./img/ec2_bastion.png)
 
