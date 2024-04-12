@@ -55,6 +55,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 2023年11月26日のアップデートで Automation の Visual Design ツールが発表されました。  
 以前は YAML ファイルを書かなければならなかったのですが、D&D で Automation を書けるようになり大変便利になりました。ハンズオンでも Visual Design を使って Automation を書いてみましょう。  
+以下は完成イメージです。  
+
+![img](./img/chapter06_runbook_design.PNG)
 
 本ハンズオンでは、EC2 インスタンスのインスタンスタイプ変更を Automation で記述します。  
 希望のインスタンスタイプを指定、インスタンス停止した後にインスタンスタイプを変更、インスタンスを起動するという流れです。  
@@ -233,14 +236,18 @@ description: '*このデフォルトのテキストをランブックに関す�
 parameters:
   InstanceId:
     type: String
+    description: The Id of the instance
   InstanceType:
     type: String
+    description: The desired instance type
   AutomationAssumeRole:
     type: String
     default: ''
+    description: The ARN of the role that allows Automation to perform the actions on your behalf.
   SleepWait:
     type: String
     default: PT5S
+    description: The desired wait time before starting instance
 assumeRole: '{{AutomationAssumeRole}}'
 mainSteps:
   - name: AssertAWSResourceProperty
@@ -295,6 +302,7 @@ mainSteps:
 Automation ドキュメントが保存されました。  
 
 作成したドキュメントを開きます。  
+ドキュメントは、AWS Systems Manager の左ペインから ドキュメント を選択し、自己所有タブを開いたところに保存されています。  
 右上にある **オートメーションを実行する** をクリックします。  
 
 **Input parameters** に以下を入力します。  
@@ -318,6 +326,8 @@ Automation ドキュメントが保存されました。
 
 マネジメントコンソールで EC2 画面を開いてください。該当 EC2 インスタンスのインスタンスタイプが変わっていることを確認します。  
 
+うまく行かない場合は、ドキュメントを開き、コンテンツから見直してみてください。  
+ドキュメントを修正する場合は、右上のアクションから「新しいバージョンを作成する」から編集し、バージョンを最新に設定したうえで、再度オートメーションを実行してください。
 
 ### 役に立つユーザーガイド
 
