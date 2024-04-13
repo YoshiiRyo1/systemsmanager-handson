@@ -2,7 +2,7 @@
 
 Port Forwarding を使用して VPC 内のインスタンスへ接続する方法を学びます。  
 Chapter02 では Session Manager を使用して EC2 インスタンスへ接続しました。
-ただ、Session Manager 接続先インスタンスにはインターネットアクセスが必要です。  
+ただ、Session Manager 接続先インスタンスにはインターネットアクセス、あるいは、VPCエンドポイントが必要です。  
 プライベートサブネットにあるインスタンスに Session Manager で接続ために Port Forwarding を使用します。  
 今回のハンズオンのように SSM Agent をインストールできない RDS にも応用できます。  
 
@@ -19,7 +19,8 @@ Chapter01で作成した踏み台サーバーが、以下の図の「SSM Managed
 
 （引用：https://aws.amazon.com/jp/blogs/news/use-port-forwarding-in-aws-systems-manager-session-manager-to-connect-to-remote-hosts-jp/ ）
 
-また、今回はCloudShellを使用しているため、「Client workstation」がCloudShellに該当します。
+今回はCloudShellを使用しているため、「Client workstation」がCloudShellに該当します。  
+また、EC2インスタンスをパブリックサブネットに作成しましたが、プライベートサブネットに見立てることにします。
 
 構成を確認したところで、実際にPort ForwardingでRDSに接続していきます。
 
