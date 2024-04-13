@@ -35,7 +35,10 @@
 
 
 ## ハンズオンの前提
+### [OpsJAWS Meetup#28](https://opsjaws.doorkeeper.jp/events/171213) 参加者
+運営側で AWS アカウントと IAM ユーザを用意しますので、そのアカウントを使ってハンズオンを進めてください。
 
+### その他の方
 - 自身が所有している AWS アカウントがあること
   - 本番環境ではないことが望ましい
 - AdministratorAccess 権限の持つ IAM ユーザー/ロールが使えること
@@ -51,4 +54,3 @@ AWS が公開しているハンズオンにもチャレンジしてみてくだ�
 ## 本コンテンツについて
 
 このコンテンツは [OpsJAWS](https://manage.doorkeeper.jp/groups/opsjaws) によって管理されています。  
-
