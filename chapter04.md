@@ -51,7 +51,7 @@ aws ssm create-association \
 
 ### 確認
 
-[State Manager](https://us-west-2.console.aws.amazon.com/systems-manager/state-manager) をマネジメントコンソールで開いてみます。  
+[State Manager](https://ap-northeast-1.console.aws.amazon.com/systems-manager/state-manager) をマネジメントコンソールで開いてみます。  
 `Linux_Patch_Apply` という名称の関連付けができています。  
 
 ![img](img/chap04_statemanager.png)

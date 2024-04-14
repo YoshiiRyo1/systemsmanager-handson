@@ -25,7 +25,7 @@ Automation の実行はユーザーが行うわけではありません。
 
 サービスロールが正しく作成できたら簡単な Automation を実行してみましょう。  
 
-マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation/execute) を開きます。  
+マネジメントコンソールで [Automation](https://ap-northeast-1.console.aws.amazon.com/systems-manager/automation/execute) を開きます。  
 Systems Manager 画面の左ペインにある **変更管理** → **オートメーション** からも遷移できます。  
 
 **Execute automation** をクリックします。  
@@ -44,8 +44,10 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 その他はデフォルトのままで大丈夫です。**実行** をクリックします。  
 
-マネジメントコンソールで EC2 画面を開きます。  
+マネジメントコンソールで [EC2](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Instances:)  画面を開きます。  
 ハンズオン用踏み台サーバーのステータスを見てみましょう。停止済み になっているはずです。  
+停止済みサーバーが確認できない場合 「インスタンスの状態 = running」 のようなフィルターにて表示対象が絞り込まれている場合があります。  
+その場合は **フィルターをクリア** をクリックすることで絞り込みを解除できます。  
 
 このように予め定義しておいたランブックを実行してオペレーションを自動化することが Automation の目的です。
 
@@ -62,9 +64,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 本ハンズオンでは、EC2 インスタンスのインスタンスタイプ変更を Automation で記述します。  
 希望のインスタンスタイプを指定、インスタンス停止した後にインスタンスタイプを変更、インスタンスを起動するという流れです。  
 
-マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
+マネジメントコンソールで [Automation](https://ap-northeast-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
 
-**Create automation runbook** をクリックします。  
+**Create runbook** をクリックします。  
 
 ### ランブック名の定義
 
@@ -102,11 +104,11 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ドロップした **AssertAWSResourceProperty** をクリックします。  
 
-右側ペインの **AssertAWSResourceProperty** から **General** タブを開きます。  
+右側ペインの **AssertAWSResourceProperty** から **全般** タブを開きます。  
 
-**Step name** に `assertInstanceType` と入力します。  
+**ステップ名** に `assertInstanceType` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -131,7 +133,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `stopInstance` と入力します。  
+**ステップ名** に `stopInstance` と入力します。  
 
 **インプット** タブを開きます。  
 
@@ -153,7 +155,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `resizeInstance` と入力します。  
+**ステップ名** に `resizeInstance` と入力します。  
 
 **インプット** タブを開きます。  
 
@@ -175,9 +177,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **Sleep** から **全般** タブを開きます。  
 
-**Step name** に `wait` と入力します。  
+**ステップ名** に `wait` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -194,9 +196,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `startInstance` と入力します。  
+**ステップ名** に `startInstance` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -250,7 +252,7 @@ parameters:
     description: The desired wait time before starting instance
 assumeRole: '{{AutomationAssumeRole}}'
 mainSteps:
-  - name: AssertAWSResourceProperty
+  - name: assertInstanceType
     action: aws:assertAwsResourceProperty
     isCritical: false
     isEnd: true
@@ -298,7 +300,7 @@ mainSteps:
 
 ### 保存と実行
 
-右上にある **Create runbook** をクリックします。
+右上にある **ランブックを作成** をクリックします。
 Automation ドキュメントが保存されました。  
 
 作成したドキュメントを開きます。  
@@ -324,7 +326,7 @@ Automation ドキュメントが保存されました。
 
 ![img](./img/chap05_automation_result.png))
 
-マネジメントコンソールで EC2 画面を開いてください。該当 EC2 インスタンスのインスタンスタイプが変わっていることを確認します。  
+マネジメントコンソールで [EC2](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Instances:) 画面を開いてください。該当 EC2 インスタンスのインスタンスタイプが変わっていることを確認します。  
 
 うまく行かない場合は、ドキュメントを開き、コンテンツから見直してみてください。  
 ドキュメントを修正する場合は、右上のアクションから「新しいバージョンを作成する」から編集し、バージョンを最新に設定したうえで、再度オートメーションを実行してください。

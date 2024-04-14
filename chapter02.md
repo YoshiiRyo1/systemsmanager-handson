@@ -18,7 +18,7 @@ Session Manager には以下のような利点があります。
 
 マネジメントコンソールから Session Manager を使用して EC2 インスタンスにログインします。  
 
-[EC2](https://us-west-2.console.aws.amazon.com/ec2/home#Instances:) 画面を開きます。  
+[EC2](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Instances:) 画面を開きます。  
 
 [Chapter 1](./chapter01.md) で作成した EC2 インスタンスを使用します。そのインスタンスのチェックボックスを選択して、上部の `接続` ボタンをクリックします。  
 ![img](./img/chap02_ec2.png)  
