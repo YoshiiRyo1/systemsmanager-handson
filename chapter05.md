@@ -66,7 +66,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 マネジメントコンソールで [Automation](https://ap-northeast-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
 
-**Create automation runbook** をクリックします。  
+**Create runbook** をクリックします。  
 
 ### ランブック名の定義
 
@@ -104,11 +104,11 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ドロップした **AssertAWSResourceProperty** をクリックします。  
 
-右側ペインの **AssertAWSResourceProperty** から **General** タブを開きます。  
+右側ペインの **AssertAWSResourceProperty** から **全般** タブを開きます。  
 
-**Step name** に `assertInstanceType` と入力します。  
+**ステップ名** に `assertInstanceType` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -133,7 +133,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `stopInstance` と入力します。  
+**ステップ名** に `stopInstance` と入力します。  
 
 **インプット** タブを開きます。  
 
@@ -155,7 +155,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `resizeInstance` と入力します。  
+**ステップ名** に `resizeInstance` と入力します。  
 
 **インプット** タブを開きます。  
 
@@ -177,9 +177,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **Sleep** から **全般** タブを開きます。  
 
-**Step name** に `wait` と入力します。  
+**ステップ名** に `wait` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -196,9 +196,9 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**Step name** に `startInstance` と入力します。  
+**ステップ名** に `startInstance` と入力します。  
 
-**Inputs** タブを開きます。  
+**インプット** タブを開きます。  
 
 以下のように入力します。  
 
@@ -252,7 +252,7 @@ parameters:
     description: The desired wait time before starting instance
 assumeRole: '{{AutomationAssumeRole}}'
 mainSteps:
-  - name: AssertAWSResourceProperty
+  - name: assertInstanceType
     action: aws:assertAwsResourceProperty
     isCritical: false
     isEnd: true
@@ -300,7 +300,7 @@ mainSteps:
 
 ### 保存と実行
 
-右上にある **Create runbook** をクリックします。
+右上にある **ランブックを作成** をクリックします。
 Automation ドキュメントが保存されました。  
 
 作成したドキュメントを開きます。  
