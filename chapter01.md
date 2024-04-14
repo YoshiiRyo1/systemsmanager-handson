@@ -45,7 +45,7 @@ cat > tagspec.json << EOF
         "Tags": [
             {
                 "Key": "Name",
-                "Value": "${MYNAME}_SSMHandson}"
+                "Value": "${MYNAME}_SSMHandson"
             }
         ]
     }
