@@ -25,7 +25,7 @@ Automation の実行はユーザーが行うわけではありません。
 
 サービスロールが正しく作成できたら簡単な Automation を実行してみましょう。  
 
-マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation/execute) を開きます。  
+マネジメントコンソールで [Automation](https://ap-northeast-1.console.aws.amazon.com/systems-manager/automation/execute) を開きます。  
 Systems Manager 画面の左ペインにある **変更管理** → **オートメーション** からも遷移できます。  
 
 **Execute automation** をクリックします。  
@@ -62,7 +62,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 本ハンズオンでは、EC2 インスタンスのインスタンスタイプ変更を Automation で記述します。  
 希望のインスタンスタイプを指定、インスタンス停止した後にインスタンスタイプを変更、インスタンスを起動するという流れです。  
 
-マネジメントコンソールで [Automation](https://us-east-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
+マネジメントコンソールで [Automation](https://ap-northeast-1.console.aws.amazon.com/systems-manager/automation) を開きます。  
 
 **Create automation runbook** をクリックします。  
 
