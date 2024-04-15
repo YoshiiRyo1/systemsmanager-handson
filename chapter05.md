@@ -81,13 +81,12 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下の4つのパラメータを追加します。  
 
-| パラメータ名          | タイプ | 必須 | デフォルト値（オプション） |  許可される値（オプション） | 許可されたパターン（オプション）                     | 説明（オプション）                                                                              |
+| パラメータ名          | タイプ | 必須 | デフォルト値（オプション） |  許可される値（オプション） | 許可されたパターン（オプション）| 説明（オプション）                                                                  |
 | -------------------- | ------ | --- | ------------------------ | ------------------------ | ----------------------------- | --------------------------------------------------------------------------------- |
-| InstanceId           | String | Yes | （※必須がNOのみの項目）                         |                          |                               | The Id of the instance                                                                          |
-| InstanceType         | String | Yes | （※必須がNOのみの項目）                         |                          |                               | The desired instance type                                                                              |
-| AutomationAssumeRole | String | No  |                          |                          |                                                    | The ARN of the role that allows Automation to perform the actions on your behalf.                                            |
-| SleepWait            | String | No  | PT5S                     |                           |^PT([0-9]{1,6}S|[0-9]{1,5}M|[0-9]{1,3}H)$|^PD[0-7]$| The desired wait time before starting instance  
-
+| InstanceId           | String | Yes | （※必須がNOのみの項目）   |                          |                               | The Id of the instance                                                            |
+| InstanceType         | String | Yes | （※必須がNOのみの項目）   |                          |                               | The desired instance type                                                         |
+| AutomationAssumeRole | String | No  |                          |                          |                               | The ARN of the role that allows Automation to perform the actions on your behalf. |
+| SleepWait            | String | No  | PT5S                     |                          |                               | The desired wait time before starting instance                                    |
 
 ![img](./img/chap05_automation_parameters.png)
 
