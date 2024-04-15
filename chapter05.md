@@ -59,7 +59,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 以前は YAML ファイルを書かなければならなかったのですが、D&D で Automation を書けるようになり大変便利になりました。ハンズオンでも Visual Design を使って Automation を書いてみましょう。  
 以下は完成イメージです。  
 
-![img](./img/chapter06_runbook_design.PNG)
+![img](./img/chap05_runbook_design.PNG)
 
 本ハンズオンでは、EC2 インスタンスのインスタンスタイプ変更を Automation で記述します。  
 希望のインスタンスタイプを指定、インスタンス停止した後にインスタンスタイプを変更、インスタンスを起動するという流れです。  
