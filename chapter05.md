@@ -155,7 +155,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ### ステップ3
 
-左側ペインの **AWS APIs** タブから `Amazon EC2 ModifyInstanceAttribute` をマウスでキャンバスにドロップします。  
+左側ペインの **AWS APIs** タブの **Amazon EC2** 欄にある `Amazon EC2 ModifyInstanceAttribute` をマウスでキャンバスにドロップします。  
 前の手順の **stopInstance** と繋げます。  
 
 ドロップした **ModifyInstanceAttribute** をクリックします。  
