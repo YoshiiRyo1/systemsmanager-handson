@@ -13,13 +13,55 @@ Automation は、リソースの管理・設定を自動化する機能です。
 Automation の実行はユーザーが行うわけではありません。  
 サービスロールが肩代わりしてリソースの操作を行います。そのサービスロールを作成します。  
 
-本ハンズオンでは事前にサービスロールを作成しています。  
-サービスロール作成手順を知りたい方は以下を参照ください。  
-[Method 1: Use AWS CloudFormation to configure a service role for Automation](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-setup-cloudformation.html)
+CloudShell で以下のコマンド実行します。  
+
+```bash
+wget https://docs.aws.amazon.com/systems-manager/latest/userguide/samples/AWS-SystemsManager-AutomationServiceRole.zip
+unzip AWS-SystemsManager-AutomationServiceRole.zip 
+```
+
+zip が解凍されて `AWS-SystemsManager-AutomationServiceRole.yaml` がディレクトリに存在することを確認します。  
+
+```bash
+$ ls
+AWS-SystemsManager-AutomationServiceRole.yaml  AWS-SystemsManager-AutomationServiceRole.zip
+```
+
+サービスロールを作成するコマンドを実行します。  
+
+```bash
+aws cloudformation create-stack --stack-name SSMHandson \
+  --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml \
+  --capabilities CAPABILITY_NAMED_IAM
+```
 
 マネジメントコンソールで IAM ロール画面を開いてください。**AutomationServiceRole** というロールが作成されていることを確認します。  
 
 ![img](./img/chap05_automationservicerole.png)
+
+作成後に以下のコマンドを実行します。  
+
+```bash
+cat > inline-policy.json << EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Resource": "*",
+            "Action": "ec2:ModifyInstanceAttribute"
+        }
+    ]
+}
+EOF
+
+aws iam put-role-policy \
+    --role-name AutomationServiceRole \
+    --policy-name HandsonPolicy \
+    --policy-document file://inline-policy.json
+```
+
+
 
 ### Automation を実行する
 

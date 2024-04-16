@@ -44,14 +44,12 @@ whoami
 
 ## AWS CLI からログイン
 
-続いて AWS CLI からログインしてみます。  
+続いて AWS CLI からログインしてみます。ハンズオン用 EC2 のインスタンス ID をコピーしておきます。  
 
 CloudShell で以下のコマンドを実行します。  
 
 ```bash
-MYID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=${MYNAME}_SSMHandson --query 'Reservations[].Instances[].InstanceId' --output text)
-
-aws ssm start-session --target ${MYID}
+aws ssm start-session --target インスタンスID
 ```
 
 プロンプトが `sh-4.2$` に変わり、コマンドを実行できるようになります。  
@@ -79,43 +77,77 @@ exit
 Session Manager 経由でログインした際のコマンド実行履歴を記録します。  
 S3 と CloudWatch Logs の何れか、または、両方に記録することができます。このハンズオンでは CloudWatch Logs に記録します。  
 
-### 初期設定
-
-[Session Manager の設定](https://ap-northeast-1.console.aws.amazon.com/systems-manager/session-manager/preferences?region=ap-northeast-1) 画面を開きます。  
-**CloudWatch logging** で設定の有効化、ロググループの指定を行います。（本ハンズオンでは予め設定してあります）
-![alt text](./img/chap02_ssm_setting.png)
-
-
-### セッション開始
-
-Session Manager でインスタンスにログインしている場合は一度ログアウトします。  
-[AWS CLI からログイン](#AWS-CLI-からログイン) の手順を再度実行します。  
+最初にロググループを作成します。  
 
 ```bash
-aws ssm start-session --target ${MYID}
-
-Starting session with SessionId: ryo.yoshii@mixi.co.jp-0740855347c5f5518  # ここの SessionId がログストリーム名になります
-
-sh-4.2$ date
+aws logs create-log-group --log-group-name SSMHandson
 ```
 
-### ログ表示
+マネジメントコンソールの [Session Manager](https://us-west-2.console.aws.amazon.com/systems-manager/session-manager/preferences) 画面を開きます。  
+
+`編集` をクリックします。  
+
+`CloudWatch logging` の下にある **Enable** にチェックを入れます。  
+`Enforce encryption` の下にある **Allow only CloudWatch log groups that are encrypted by customers master keys (CMK)** のチェックを外します。  
+`CloudWatch のロググループ` から **SSMHandson** を選択します。  
+
+**保存** をクリックします。  
+
+インスタンスプロファイルに CloudWatch Logs の書き込み権限を追加します。  
+CloudShell で以下のコマンドを実行します。  
+
+```bash
+cat > chap02_policy.json << EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+
+aws iam put-role-policy \
+    --role-name $ROLE_NAME \
+    --policy-name Handson_chap2_Policy \
+    --policy-document file://chap02_policy.json
+```
+
+権限の追加が終わったら、[マネジメントコンソールからログイン](#マネジメントコンソールからログイン) を再度実行します。  
 
 [CloudWatch Logs](https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=ap-northeast-1#logsV2:log-groups/log-group/SSMHandson) 画面を開きます。  
 CloudWatch Logs のロググループ `SSMHandson` にログストリームが作成されています。それを開きます。  
 
 実行したコマンドとその結果が表示されています。  
 
-![alt text](./img/chap02_cw_logstreams.png)
+```json
+{
+    "eventVersion": "1.0",
+    "eventTime": "2024-00-00T00:00:00Z",
+    "awsRegion": "ap-northeast-1",
+    "target": {
+        "id": "i-012345678912"
+    },
+    "userIdentity": {
+        "arn": "arn:aws:sts::nnnnnnnn:assumed-role/xxxx"
+    },
+    "runAsUser": "ssm-user",
+    "sessionId": "xxxx",
+    "sessionData": [
+        "sh-4.2$ sh-4.2$ date",
+        "Thu Jan  4 05:45:59 UTC 2024"
+    ]
+}
+```
 
 
-## 解説
-
-マネジメントコンソール、または、 AWS CLI で Session Manager を使用して EC2 インスタンスにログインしました。  
-SSH 鍵やセキュリティグループでの TCP 22番開放の設定が不要であることが理解できました。  
-OS ユーザーの準備も不要でアクセス管理は IAM ユーザーに一元化されています。  
-
-セッションログの記録を有効にすることで、誰がいつどのような操作を行ったかを確認できます。  
-監査の観点からも重要な機能です。  
 
  [前へ](./chapter01.md) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [次へ](./chapter03.md) 
