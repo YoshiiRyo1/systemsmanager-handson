@@ -16,7 +16,6 @@ Windows PC で本リポジトリをクローンして使う場合はテキスト
 VSCode の場合は右下にある改行コードをクリックして LF に変更します。  
 ![img](img/chap01_vscode_lf.png)
 
-
 ## Systems Manager にインスタンスのアクセス許可を設定する
 
 デフォルトでは Systems Manager には EC2 インスタンスへのアクセス権限がありません。  

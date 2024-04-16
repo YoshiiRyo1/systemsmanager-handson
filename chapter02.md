@@ -18,9 +18,9 @@ Session Manager には以下のような利点があります。
 
 マネジメントコンソールから Session Manager を使用して EC2 インスタンスにログインします。  
 
-[EC2](https://us-west-2.console.aws.amazon.com/ec2/home#Instances:) 画面を開きます。  
+[EC2](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Instances:) 画面を開きます。  
 
- [Chapter 1](./chapter01.md) で作成した EC2 インスタンスを使用します。そのインスタンスのチェックボックスを選択して、上部の `接続` ボタンをクリックします。  
+[Chapter 1](./chapter01.md) で作成した EC2 インスタンスを使用します。そのインスタンスのチェックボックスを選択して、上部の `接続` ボタンをクリックします。  
 ![img](./img/chap02_ec2.png)  
   
 `セッションマネージャー` タブから `接続` ボタンをクリックします。  
@@ -54,6 +54,23 @@ aws ssm start-session --target インスタンスID
 
 プロンプトが `sh-4.2$` に変わり、コマンドを実行できるようになります。  
 
+試しに簡単なコマンドを実行してみましょう。  
+
+※Windowsを使用している場合、[Ctrl]+[v]によるペーストができないので右クリックでペーストしてください。
+
+```bash
+date
+
+uname -n
+
+whoami
+```
+
+セッションを終了するには、`exit` と入力してエンターキーを押します。  
+
+```bash
+exit
+```
 
 ## セッションデータの記録
 
