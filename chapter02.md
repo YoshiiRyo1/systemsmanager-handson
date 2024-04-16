@@ -96,7 +96,7 @@ aws ssm start-session --target ${MYID}
 
 Starting session with SessionId: ryo.yoshii@mixi.co.jp-0740855347c5f5518  # ここの SessionId がログストリーム名になります
 
-sh-5.2$ date
+sh-4.2$ date
 ```
 
 ### ログ表示

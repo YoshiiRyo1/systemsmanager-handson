@@ -105,6 +105,7 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ![img](./img/chap05_select_assertAwsResourceProperty.PNG)
 
+
 ドロップした **AssertAWSResourceProperty** をクリックします。  
 
 右側ペインの **AssertAWSResourceProperty** から **全般** タブを開きます。  
