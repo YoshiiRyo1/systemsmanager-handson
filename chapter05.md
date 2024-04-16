@@ -81,13 +81,12 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下の4つのパラメータを追加します。  
 
-| Parameter Name       | Type   | Required | Default value | Allowed Pattern | Description                                                                       |
-| -------------------- | ------ | -------- | ------------- | --------------- | --------------------------------------------------------------------------------- |
-| InstanceId           | String | Yes      |               |                 | The Id of the instance                                                            |
-| InstanceType         | String | Yes      |               |                 | The desired instance type                                                         |
-| AutomationAssumeRole | String | No       |               |                 | The ARN of the role that allows Automation to perform the actions on your behalf. |
-| SleepWait            | String | No       | PT5S          |                 | The desired wait time before starting instance                                    |
-
+| パラメータ名          | タイプ | 必須 | デフォルト値（オプション） |  許可される値（オプション） | 許可されたパターン（オプション）| 説明（オプション）                                                                  |
+| -------------------- | ------ | --- | ------------------------ | ------------------------ | ----------------------------- | --------------------------------------------------------------------------------- |
+| InstanceId           | String | Yes | （※必須がNOのみの項目）   |                          |                               | The Id of the instance                                                            |
+| InstanceType         | String | Yes | （※必須がNOのみの項目）   |                          |                               | The desired instance type                                                         |
+| AutomationAssumeRole | String | No  |                          |                          |                               | The ARN of the role that allows Automation to perform the actions on your behalf. |
+| SleepWait            | String | No  | PT5S                     |                          |                               | The desired wait time before starting instance                                    |
 
 ![img](./img/chap05_automation_parameters.png)
 
@@ -102,19 +101,21 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 ### ステップ1
 
-左側ペインから **プロパティをアサートします** をマウスでキャンバスにドロップします。  
+左側ペインの **アクション** タブの **リソース管理** 欄にある **プロパティをアサートします** をマウスでキャンバスにドロップします。  
+
+![img](./img/chap05_select_assertAwsResourceProperty.PNG)
 
 ドロップした **AssertAWSResourceProperty** をクリックします。  
 
 右側ペインの **AssertAWSResourceProperty** から **全般** タブを開きます。  
 
-**ステップ名** に `assertInstanceType` と入力します。  
+**ステップ名** を `assertInstanceType` に変更します。  
 
 **インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value                                       |
+| 設定項目            | 入力値                                       |
 | ------------------ | ------------------------------------------- |
 | Service            | EC2                                         |
 | API                | DescribeInstances                           |
@@ -126,90 +127,100 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 `Desired values`、`InstanceIds` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
 
+![img](./img/chap05_set_assertInstanceType_input.PNG)
+
 ### ステップ2
 
-左側ペインから **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
+左側ペインの **アクション** タブの **リソース管理** 欄にある **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
 前の手順の **AssertAWSResourceProperty** と繋げます。  
 
 ドロップした **ChangeInstanceState** をクリックします。  
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**ステップ名** に `stopInstance` と入力します。  
+**ステップ名** を `stopInstance` に変更します。  
 
 **インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value              |
+| 設定項目            | 入力値             |
 | ------------------ | ------------------ |
 | InstanceIds        | - '{{InstanceId}}' |
 | DesiredState       | stopped            |
 
 `InstanceIds`、`{{InstanceId}}` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
 
+![img](./img/chap05_set_stopInstance_input.PNG)
+
 ### ステップ3
 
-左側ペインの **AWS APIs** タブから `Amazon EC2 ModifyInstanceAttribute` をマウスでキャンバスにドロップします。  
+左側ペインの **AWS APIs** タブの **Amazon EC2** 欄にある `Amazon EC2 ModifyInstanceAttribute` をマウスでキャンバスにドロップします。  
 前の手順の **stopInstance** と繋げます。  
 
 ドロップした **ModifyInstanceAttribute** をクリックします。  
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**ステップ名** に `resizeInstance` と入力します。  
+**ステップ名** を `resizeInstance` に変更します。  
 
 **インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value                     |
+| 設定項目            | 入力値                    |
 | ------------------ | ------------------------- |
 | InstanceId         | {{InstanceId}}            |
 | InstanceType       | Value: '{{InstanceType}}' |
 
 `InstanceType` は `その他の入力` から追加してください。
 
+![img](./img/chap05_set_resizeInstance_input.PNG)
+
 ### ステップ4
 
-左側ペインから **スリープ** をマウスでキャンバスにドロップします。  
+左側ペインの **アクション** タブの **フロー** 欄にある **スリープ** をマウスでキャンバスにドロップします。  
 前の手順の **resizeInstance** と繋げます。  
 
 ドロップした **Sleep** をクリックします。  
 
 右側ペインの **Sleep** から **全般** タブを開きます。  
 
-**ステップ名** に `wait` と入力します。  
+**ステップ名** を `wait` に変更します。  
 
 **インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value         |
+| 設定項目            | 入力値        |
 | ------------------ | ------------- |
 | Duration           | {{SleepWait}} |
 
+![img](./img/chap05_set_wait_input.PNG)
+
 ### ステップ5
 
-左側ペインから **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
+左側ペインの **アクション** タブの **リソース管理** 欄にある **インスタンスの状態を変更します** をマウスでキャンバスにドロップします。  
 前の手順の **wait** と繋げます。  
 
 ドロップした **ChangeInstanceState** をクリックします。  
 
 右側ペインの **ChangeInstanceState** から **全般** タブを開きます。  
 
-**ステップ名** に `startInstance` と入力します。  
+**ステップ名** を `startInstance` に変更します。  
 
 **インプット** タブを開きます。  
 
 以下のように入力します。  
 
-| Configuration Name | Value              |
+| 設定項目            | 入力値             |
 | ------------------ | ------------------ |
 | InstanceIds        | - '{{InstanceId}}' |
 | DesiredState       | running            |
 
 `InstanceIds`、`{{InstanceId}}` の value はドロップダウンリストから選択すると配列形式とならないので、必ず `-` を入れて配列形式で指定してください。
+
+![img](./img/chap05_set_startInstance_input.PNG)
 
 ### ステップ6
 
@@ -219,11 +230,13 @@ Systems Manager 画面の左ペインにある **変更管理** → **オート�
 
 以下のように入力します。  
 
-| Configuration Name | Value        |
+| 設定項目           | 入力値        |
 | ------------------ | ------------ |
 | 失敗した場合       | stopInstance |
 | クリティカル       | false        |
 | 次のステップ       | 最後へ移動   |
+
+![img](./img/chap05_set_assertInstanceType_setting.PNG)
 
 ### 完成形
 
@@ -311,7 +324,7 @@ Automation ドキュメントが保存されました。
 
 **Input parameters** に以下を入力します。  
 
-| Parameter Name       | Value                            |
+| 設定項目              | 入力値                           |
 | -------------------- | -------------------------------- |
 | InstanceId           | ハンズオン用踏み台サーバーを選択 |
 | InstanceType         | t2.micro                         |
