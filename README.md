@@ -50,4 +50,4 @@ AWS が公開しているハンズオンにもチャレンジしてみてくだ�
 
 ## 本コンテンツについて
 
-このコンテンツは [OpsJAWS](https://manage.doorkeeper.jp/groups/opsjaws) によって管理されています。  
+このコンテンツは [OpsJAWS](https://opsjaws.connpass.com/) によって管理されています。  
